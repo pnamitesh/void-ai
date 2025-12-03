@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Void AI | Talk to the Void</title>
+
+<style>
+:root {
+    --bg: #030303;
+    --glass: rgba(255,255,255,0.05);
+    --glass-border: rgba(255,255,255,0.12);
+    --accent: #00d4ff;
+    --accent-soft: rgba(0, 212, 255, 0.18);
+    --text-main: #e0e0e0;
+    --text-muted: #999;
+    --radius: 18px;
+    --font-main: 'Segoe UI', Tahoma, sans-serif;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+    background: radial-gradient(circle at center, #0c0c0c, #030303 70%);
+    color: var(--text-main);
+    font-family: var(--font-main);
+    min-height: 100vh;
+    overflow: hidden;
+}
+
+/* VOID Halo */
+#voidHalo {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    width: 450px;
+    height: 450px;
+    transform: translate(-50%, -50%);
+    background: radial-gradient(circle, var(--accent-soft), transparent 70%);
+    filter: blur(120px);
+    opacity: 0.6;
+    animation: haloPulse 7s infinite ease-in-out;
+    pointer-events: none;
+}
+
+@keyframes haloPulse {
+    0% { transform: translate(-50%, -50%) scale(1); opacity: 0.55; }
+    50% { transform: translate(-50%, -50%) scale(1.15); opacity: 0.75; }
+    100% { transform: translate(-50%, -50%) scale(1); opacity: 0.55; }
+}
+
+/* Floating Particles */
+.particle {
+    position: fixed;
+    width: 5px;
+    height: 5px;
+    background: var(--accent);
+    border-radius: 50%;
+    opacity: 0.5;
+    box-shadow: 0 0 10px var(--accent);
+    animation: floatUp 9s infinite linear;
+}
+
+@keyframes floatUp {
+    0% { transform: translateY(0) scale(0.7); opacity: .4; }
+    100% { transform: translateY(-150px) scale(1.2); opacity: 0; }
+}
+
+/* Header */
+header {
+    position: fixed;
+    top: 0;
+    width: 100%;
+    backdrop-filter: blur(14px);
+    background: rgba(0,0,0,0.5);
+    border-bottom: 1px solid #222;
+    padding: 1rem 5%;
+    text-align: center;
+    z-index: 99;
+}
+
+header div {
+    letter-spacing: 4px;
+    font-size: 1.4rem;
+    color: var(--accent);
+}
+
+/* Layout */
+.container {
+    max-width: 900px;
+    margin: 6.5rem auto 2rem;
+    padding: 1rem;
+}
+
+/* Intro */
+.intro {
+    text-align: center;
+    margin-bottom: 1.2rem;
+}
+
+.intro h1 {
+    font-size: 2rem;
+}
+
+.intro p {
+    margin-top: 0.4rem;
+    color: var(--text-muted);
+}
+
+/* Chat Shell */
+.chat-shell {
+    height: 70vh;
+    background: var(--glass);
+    backdrop-filter: blur(20px);
+    border-radius: var(--radius);
+    border: 1px solid var(--glass-border);
+    padding: 0.8rem;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    box-shadow: 0 0 40px rgba(0,212,255,0.12);
+}
+
+/* Chat Window */
+.chat-window {
+    flex: 1;
+    overflow-y: auto;
+    padding-right: .6rem;
+    scroll-behavior: smooth;
+}
+
+.chat-window::-webkit-scrollbar {
+    width: 6px;
+}
+
+.chat-window::-webkit-scrollbar-thumb {
+    background: #333;
+    border-radius: 4px;
+}
+
+/* Chat bubbles */
+.bubble-row {
+    display: flex;
+    margin-bottom: 1rem;
+    width: 100%;
+}
+
+.bubble {
+    max-width: 80%;
+    padding: 1rem 1.2rem;
+    border-radius: 18px;
+    font-size: 1rem;
+    line-height: 1.5;
+    animation: messageDrop 0.35s ease-out;
+    position: relative;
+    word-wrap: break-word;
+}
+
+@keyframes messageDrop {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* Void avatar dot */
+.void-avatar {
+    width: 12px;
+    height: 12px;
+    background: var(--accent);
+    border-radius: 50%;
+    margin-right: 6px;
+    margin-top: 6px;
+    filter: drop-shadow(0 0 6px var(--accent));
+    flex-shrink: 0;
+}
+
+/* VOID bubbles */
+.bubble-row.void {
+    justify-content: flex-start;
+}
+
+.void-bubble {
+    background: rgba(0,0,0,0.45);
+    border: 1px solid #333;
+    box-shadow: 0 0 14px rgba(0,212,255,0.08);
+}
+
+/* USER bubbles */
+.bubble-row.user {
+    justify-content: flex-end;
+}
+
+.user-bubble {
+    background: var(--accent-soft);
+    color: var(--accent);
+    border: 1px solid var(--accent);
+    box-shadow: 0 0 14px rgba(0,212,255,0.15);
+}
+
+/* Typing Indicator */
+.typing {
+    display: none;
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    padding-left: 1rem;
+    margin-bottom: .7rem;
+    animation: fadeBlink 1.6s infinite;
+}
+
+@keyframes fadeBlink {
+    0% { opacity: .3; }
+    50% { opacity: 1; }
+    100% { opacity: .3; }
+}
+
+/* Input Area */
+.input-row {
+    display: flex;
+    gap: 0.7rem;
+    padding-top: 0.6rem;
+    border-top: 1px solid #222;
+}
+
+textarea {
+    flex: 1;
+    resize: none;
+    min-height: 45px;
+    max-height: 95px;
+    background: rgba(0,0,0,0.7);
+    color: var(--text-main);
+    padding: 0.8rem 1rem;
+    border-radius: var(--radius);
+    border: 1px solid #333;
+    font-size: 1rem;
+    font-family: var(--font-main);
+    transition: border-color 0.2s;
+}
+
+textarea:focus {
+    outline: none;
+    border-color: var(--accent);
+}
+
+textarea::placeholder {
+    color: var(--text-muted);
+}
+
+/* Send button */
+.send-btn {
+    background: var(--accent);
+    color: #000;
+    border: none;
+    padding: 0.75rem 1.4rem;
+    border-radius: var(--radius);
+    font-size: 0.9rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: 0.25s;
+    flex-shrink: 0;
+}
+
+.send-btn:hover:not(:disabled) {
+    background: #00a3cc;
+    transform: scale(1.02);
+}
+
+.send-btn:disabled {
+    background: #555;
+    cursor: not-allowed;
+    opacity: 0.7;
+}
+
+.hint {
+    margin-top: 0.7rem;
+    text-align: center;
+    font-size: 0.8rem;
+    color: var(--text-muted);
+}
+
+/* Status indicator */
+.status-indicator {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.4rem;
+    margin-top: 0.5rem;
+    font-size: 0.75rem;
+    color: var(--text-muted);
+}
+
+.status-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #666;
+    transition: background 0.3s;
+}
+
+.status-dot.connected {
+    background: var(--accent);
+    box-shadow: 0 0 8px var(--accent);
+}
+
+/* Mobile */
+@media(max-width:600px) {
+    .bubble { max-width: 95%; }
+    .intro h1 { font-size: 1.6rem; }
+    .chat-shell { height: 65vh; }
+}
+</style>
+</head>
+
+<body>
+
+<div id="voidHalo"></div>
+
+<script>
+/* Floating particles */
+for (let i = 0; i < 70; i++) {
+    const p = document.createElement("div");
+    p.classList.add("particle");
+    p.style.left = Math.random()*window.innerWidth + "px";
+    p.style.top = Math.random()*window.innerHeight + "px";
+    p.style.animationDuration = (5 + Math.random()*5) + "s";
+    p.style.animationDelay = Math.random()*3 + "s";
+    document.body.appendChild(p);
+}
+</script>
+
+<header>
+    <div>VOID AI</div>
+</header>
+
+<div class="container">
+
+    <div class="intro">
+        <h1>Talk to the Void</h1>
+        <p>The Void breathes, listens, and reflects. Speak from your chest.</p>
+    </div>
+
+    <div class="chat-shell">
+        <div id="chatWindow" class="chat-window"></div>
+
+        <div id="typingIndicator" class="typing">VOID is thinking...</div>
+
+        <div class="input-row">
+            <textarea id="userInput" placeholder="What's on your heart?" spellcheck="true"></textarea>
+            <button id="sendBtn" class="send-btn">Send</button>
+        </div>
+
+        <div class="hint">
+            The Void can comfort, but not replace real human help.
+            <div class="status-indicator">
+                <div class="status-dot" id="statusDot"></div>
+                <span id="statusText">Connecting...</span>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<script>
+const chatWindow = document.getElementById("chatWindow");
+const userInput = document.getElementById("userInput");
+const sendBtn = document.getElementById("sendBtn");
+const typingIndicator = document.getElementById("typingIndicator");
+const statusDot = document.getElementById("statusDot");
+const statusText = document.getElementById("statusText");
+
+// Determine API endpoint based on environment
+const API_BASE_URL = window.location.hostname === 'localhost' 
+    ? 'http://localhost:3000'
+    : window.location.origin;
+
+const API_ENDPOINT = `${API_BASE_URL}/api/void-ai`;
+
+console.log("🌌 Void AI initialized");
+console.log("📍 API Endpoint:", API_ENDPOINT);
+
+// Check backend connection on load
+async function checkConnection() {
+    try {
+        const res = await fetch(`${API_BASE_URL}/api/health`, { method: 'GET' });
+        if (res.ok) {
+            statusDot.classList.add('connected');
+            statusText.textContent = 'Connected';
+            console.log("✨ Backend connection established");
+        } else {
+            statusText.textContent = 'Disconnected';
+        }
+    } catch (err) {
+        console.warn("⚠️ Connection check failed:", err.message);
+        statusText.textContent = 'Backend unreachable';
+    }
+}
+
+checkConnection();
+
+function addMessage(text, sender="void") {
+    const row = document.createElement("div");
+    row.classList.add("bubble-row", sender);
+
+    if (sender === "void") {
+        const avatar = document.createElement("div");
+        avatar.classList.add("void-avatar");
+        row.appendChild(avatar);
+    }
+
+    const bubble = document.createElement("div");
+    bubble.classList.add("bubble", sender === "void" ? "void-bubble" : "user-bubble");
+    bubble.textContent = text; // Use textContent instead of innerText for security
+    bubble.style.wordWrap = "break-word";
+
+    row.appendChild(bubble);
+    chatWindow.appendChild(row);
+    chatWindow.scrollTop = chatWindow.scrollHeight;
+}
+
+// Initial message
+addMessage("You made it. Sit for a moment. What has been heavy lately?");
+
+/* Call your backend (Perplexity API via Express) */
+async function callVoidAPI(message) {
+    try {
+        const res = await fetch(API_ENDPOINT, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ message })
+        });
+
+        if (!res.ok) {
+            const errorData = await res.json().catch(() => ({}));
+            throw new Error(errorData.details || `Server error: ${res.status}`);
+        }
+
+        const data = await res.json();
+        return data.reply || "The void feels quiet. Try sharing a bit more.";
+    } catch (err) {
+        console.error("🔴 API Error →", err);
+        
+        if (err.message.includes('Failed to fetch')) {
+            return "The void is unreachable... Is the server running? (Check http://localhost:3000)";
+        }
+        
+        return `The void flickered... ${err.message}`;
+    }
+}
+
+async function sendMessage() {
+    const text = userInput.value.trim();
+    if (!text) return;
+
+    addMessage(text, "user");
+    userInput.value = "";
+
+    typingIndicator.style.display = "block";
+    sendBtn.disabled = true;
+
+    const reply = await callVoidAPI(text);
+
+    typingIndicator.style.display = "none";
+    sendBtn.disabled = false;
+
+    addMessage(reply, "void");
+}
+
+sendBtn.addEventListener("click", sendMessage);
+userInput.addEventListener("keydown", (e) => {
+    if (e.key === "Enter" && !e.shiftKey) {
+        e.preventDefault();
+        sendMessage();
+    }
+});
+</script>
+
+</body>
+</html>
