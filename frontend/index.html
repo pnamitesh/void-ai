@@ -198,13 +198,25 @@ header div {
 
 /* Typing Indicator */
 .typing {
+    position: absolute;          /* NEW – float over chat */
+    bottom: 85px;                /* NEW – sits above input bar */
+    left: 20px;                  /* NEW – aligned gently */
+    display: none;
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    opacity: 0.5;                /* NEW – transparent look */
+    pointer-events: none;        /* NEW – doesn't block clicks */
+    animation: fadeBlink 1.6s infinite;
+}
+
+/* .typing {
     display: none;
     font-size: 0.85rem;
     color: var(--text-muted);
     padding-left: 1rem;
     margin-bottom: .7rem;
     animation: fadeBlink 1.6s infinite;
-}
+} */
 
 @keyframes fadeBlink {
     0% { opacity: .3; }
@@ -214,6 +226,7 @@ header div {
 
 /* Input Area */
 .input-row {
+    
     display: flex;
     gap: 0.7rem;
     padding-top: 0.6rem;
@@ -223,8 +236,8 @@ header div {
 textarea {
     flex: 1;
     resize: none;
-    min-height: 45px;
-    max-height: 95px;
+    min-height: 35px;
+    max-height: 55px;
     background: rgba(0,0,0,0.7);
     color: var(--text-main);
     padding: 0.8rem 1rem;
