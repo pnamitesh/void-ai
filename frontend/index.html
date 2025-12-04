@@ -198,16 +198,17 @@ header div {
 
 /* Typing Indicator */
 .typing {
-    position: absolute;          /* NEW – float over chat */
-    bottom: 85px;                /* NEW – sits above input bar */
-    left: 20px;                  /* NEW – aligned gently */
+    position: absolute;
+    bottom: 120px;   /* adjust depending on your layout */
+    left: 30px;
     display: none;
     font-size: 0.85rem;
     color: var(--text-muted);
-    opacity: 0.5;                /* NEW – transparent look */
-    pointer-events: none;        /* NEW – doesn't block clicks */
+    opacity: 0.5;
     animation: fadeBlink 1.6s infinite;
+    pointer-events: none;
 }
+
 
 /* .typing {
     display: none;
